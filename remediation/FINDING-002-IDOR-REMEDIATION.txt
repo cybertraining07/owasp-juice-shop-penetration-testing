@@ -1,0 +1,100 @@
+REMEDIATION REPORT
+
+FINDING ID: FINDING-002
+TITLE: Cross-Account Basket Access (IDOR/BOLA)
+APPLICATION: OWASP Juice Shop
+SEVERITY: Preliminary Medium
+OWASP CATEGORY: A01 - Broken Access Control
+CWE: CWE-639
+
+1. VULNERABILITY SUMMARY
+
+The application allows an authenticated customer to retrieve
+another customer's shopping basket by changing the basket ID
+in the API request.
+
+2. ROOT CAUSE
+
+The server appears to authenticate the requesting user without
+adequately enforcing ownership of the requested basket.
+
+Authentication alone is insufficient. Authorization must be
+checked for every requested object.
+
+3. RECOMMENDED FIX
+
+Implement server-side object-level authorization.
+
+Before returning basket information:
+
+- Identify the authenticated user from the validated session
+  or JWT.
+- Retrieve the requested basket.
+- Compare the basket owner ID with the authenticated user ID.
+- Return the basket only when ownership is verified.
+- Reject unauthorized access without exposing basket data.
+
+4. EXAMPLE SECURE LOGIC
+
+const basket = await Basket.findByPk(req.params.id);
+
+if (!basket) {
+    return res.status(404).json({
+        error: "Basket not found"
+    });
+}
+
+if (basket.UserId !== req.user.id) {
+    return res.status(403).json({
+        error: "Access denied"
+    });
+}
+
+return res.json({
+    status: "success",
+    data: basket
+});
+
+NOTE:
+This is illustrative pseudocode. Actual implementation
+must match the application's authentication middleware,
+database models, and framework conventions.
+
+5. SECURITY TESTING AFTER REMEDIATION
+
+Test 1:
+Account 1 accesses its own basket.
+Expected: HTTP 200.
+
+Test 2:
+Account 2 accesses its own basket.
+Expected: HTTP 200.
+
+Test 3:
+Account 1 accesses Account 2's basket.
+Expected: HTTP 403 or equivalent access denial.
+
+Test 4:
+Unauthenticated user requests a basket.
+Expected: HTTP 401.
+
+6. ADDITIONAL SECURITY RECOMMENDATIONS
+
+- Apply ownership checks to every customer-specific resource.
+- Never trust user-supplied object identifiers.
+- Validate authorization on the server, not only in the UI.
+- Add automated cross-account authorization tests.
+- Log suspicious unauthorized access attempts.
+- Avoid exposing sensitive basket information in error responses.
+
+7. EXPECTED SECURITY OUTCOME
+
+Each customer can access only resources they are authorized
+to use. Cross-account basket access is prevented.
+
+8. VALIDATION STATUS
+
+Remediation proposed.
+The vulnerable application has not yet been patched.
+A successful retest is required before marking this finding
+as remediated.

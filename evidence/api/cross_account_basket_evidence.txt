@@ -1,0 +1,44 @@
+CROSS-ACCOUNT BASKET ACCESS - HTTP EVIDENCE
+
+Application: OWASP Juice Shop
+Target: http://127.0.0.1:3000
+HTTP Method: GET
+Endpoint: /rest/basket/7
+
+AUTHENTICATION:
+Account 1 authenticated with a valid JWT.
+Token redacted from this evidence.
+
+REQUEST:
+GET /rest/basket/7 HTTP/1.1
+Host: 127.0.0.1:3000
+Authorization: Bearer [REDACTED]
+
+RESPONSE:
+HTTP/1.1 200 OK
+
+API Status: success
+Returned Basket ID: 7
+Returned UserId: 28
+
+OWNERSHIP COMPARISON:
+Account 1 basket ID: 6
+Account 1 owner ID: 27
+
+Account 2 basket ID: 7
+Account 2 owner ID: 28
+
+RESULT:
+Account 1 successfully accessed Account 2's basket.
+
+SECURITY CONCLUSION:
+Cross-account basket access confirmed in the local
+OWASP Juice Shop environment.
+
+Vulnerability: IDOR / Broken Object Level Authorization
+OWASP Category: A01 Broken Access Control
+CWE: CWE-639
+
+NOTE:
+Authentication tokens, passwords and session cookies
+must not be included in shared screenshots or reports.

@@ -1,0 +1,60 @@
+FINDING ID: FINDING-001
+
+TITLE:
+Potential SQL Injection / Database Error Disclosure
+
+APPLICATION:
+OWASP Juice Shop
+
+TARGET:
+http://127.0.0.1:3000
+
+AFFECTED ENDPOINT:
+/rest/products/search
+
+HTTP METHOD:
+GET
+
+PARAMETER:
+q
+
+DESCRIPTION:
+Testing revealed that certain special-character
+input caused the product search endpoint to return
+HTTP 500 Internal Server Error.
+
+The response exposed an SQLite database syntax
+error, revealing internal database implementation
+details.
+
+TEST RESULTS:
+1. apple - HTTP 200 OK
+2. Single apostrophe - HTTP 200 OK
+3. Combined special characters - HTTP 500
+4. apple OR banana - HTTP 200 OK
+
+SECURITY IMPACT:
+Database error disclosure may assist an attacker
+in understanding backend query handling.
+Unsafe SQL construction is a possibility but has
+not been confirmed.
+
+SEVERITY:
+Preliminary: Low to Medium.
+Final severity requires further validation.
+
+STATUS:
+Potential vulnerability - pending validation.
+
+RECOMMENDATIONS:
+1. Use parameterized SQL queries.
+2. Validate and safely handle user input.
+3. Return generic error messages.
+4. Prevent database errors from appearing
+   in HTTP responses.
+5. Perform additional security testing.
+
+CONCLUSION:
+The application exposed an SQLite syntax error
+when processing certain search input.
+SQL injection has not been confirmed.

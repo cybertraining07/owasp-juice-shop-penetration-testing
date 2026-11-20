@@ -1,0 +1,356 @@
+WEB APPLICATION PENETRATION TEST REPORT
+
+PROJECT: OWASP Juice Shop Security Assessment
+ASSESSMENT TYPE: Web Application Penetration Testing
+TARGET: http://127.0.0.1:3000
+ENVIRONMENT: Kali Linux - Local Docker Lab
+ASSESSMENT DATE: November 2026
+ASSESSOR: [Your Name]
+REPORT STATUS: Draft - Technical validation in progress
+
+
+1. EXECUTIVE SUMMARY
+
+A security assessment was conducted against a locally hosted
+OWASP Juice Shop application.
+
+The assessment examined application exposure, HTTP security
+headers, API behavior, authentication, input handling, and
+object-level authorization.
+
+One Broken Access Control vulnerability was confirmed during
+testing: an authenticated customer account was able to retrieve
+another customer's shopping basket by changing the basket ID.
+
+A separate product-search test produced a SQLite database error
+when certain special characters were submitted. This is recorded
+as a potential database error disclosure issue. SQL injection
+has not been confirmed.
+
+The assessment was conducted exclusively against the local
+authorized testing environment.
+
+
+2. SCOPE AND AUTHORIZATION
+
+IN-SCOPE TARGET:
+http://127.0.0.1:3000
+
+APPLICATION:
+OWASP Juice Shop
+
+TESTING ENVIRONMENT:
+Kali Linux
+Docker
+OWASP Juice Shop container
+
+IN-SCOPE ACTIVITIES:
+- Service and technology reconnaissance
+- HTTP response and security-header inspection
+- API endpoint testing
+- Product information and review testing
+- Product search input testing
+- Authentication testing
+- Basket access and ownership testing
+- Security finding documentation
+- Remediation recommendations
+
+OUT-OF-SCOPE:
+- External systems
+- Production applications
+- Third-party infrastructure
+- Denial-of-service testing
+- Testing against accounts or data not controlled by the assessor
+
+
+3. METHODOLOGY
+
+The assessment followed a practical web application security
+testing process informed by OWASP testing principles.
+
+PHASE 1: RECONNAISSANCE
+Identified the target service and inspected HTTP responses.
+
+PHASE 2: API DISCOVERY AND TESTING
+Examined product, review, search, and challenge API responses.
+
+PHASE 3: AUTHENTICATION
+Created and tested controlled customer accounts.
+Verified successful authentication and token issuance.
+
+PHASE 4: AUTHORIZATION
+Compared basket access between two controlled customer accounts.
+
+PHASE 5: FINDINGS AND REMEDIATION
+Documented observed security issues and proposed corrective
+controls.
+
+
+4. TOOLS USED
+
+- Kali Linux
+- Docker
+- Nmap
+- WhatWeb
+- curl
+- Python 3
+- urllib
+- OWASP Juice Shop
+
+Burp Suite was available in the environment, but much of the
+API testing was performed using curl and Python.
+
+
+5. TECHNICAL FINDINGS
+
+
+FINDING-001: POTENTIAL DATABASE ERROR DISCLOSURE
+
+Affected endpoint:
+GET /rest/products/search
+
+Parameter:
+q
+
+Observation:
+Normal product searches returned HTTP 200.
+
+A single apostrophe returned HTTP 200 with an empty result.
+
+A search containing certain combined special characters
+returned HTTP 500 and exposed a SQLite syntax error.
+
+A SQL-like literal search for "apple OR banana" returned
+HTTP 200 with an empty result.
+
+Security impact:
+Database error messages may reveal implementation details
+that could assist further attacks.
+
+Severity:
+Preliminary Low to Medium; requires further validation.
+
+Status:
+Potential issue - SQL injection not confirmed.
+
+Recommendations:
+- Use parameterized database queries.
+- Validate and safely handle search input.
+- Return generic error messages to clients.
+- Keep database exception details out of HTTP responses.
+- Perform additional authorized validation.
+
+
+FINDING-002: CROSS-ACCOUNT BASKET ACCESS (IDOR/BOLA)
+
+Affected endpoint:
+GET /rest/basket/{basketId}
+
+OWASP category:
+A01 - Broken Access Control
+
+CWE:
+CWE-639 - Authorization Bypass Through User-Controlled Key
+
+Observation:
+Two controlled customer accounts were used.
+
+Account 1:
+Basket ID: 6
+Owner ID: 27
+
+Account 2:
+Basket ID: 7
+Owner ID: 28
+
+Account 1 successfully requested Account 2's basket.
+
+Observed response:
+HTTP 200 OK
+Returned basket ID: 7
+Returned UserId: 28
+
+The returned basket owner differed from Account 1's owner ID.
+
+Security impact:
+An authenticated customer may access another customer's
+basket information by changing the basket identifier.
+
+Severity:
+Preliminary Medium.
+
+Status:
+Confirmed in the local OWASP Juice Shop environment.
+
+Recommendations:
+- Enforce server-side basket ownership checks.
+- Compare the authenticated user's ID with the basket owner.
+- Deny access to objects belonging to other customers.
+- Apply object-level authorization to all customer-specific
+  API endpoints.
+- Add automated cross-account authorization tests.
+
+
+6. AUTHENTICATION TESTING
+
+Endpoint:
+POST /rest/user/login
+
+Result:
+Successful authentication using a controlled test account.
+
+The login response contained:
+- Authentication token
+- Basket identifier
+- Authenticated email information
+
+Profile endpoint:
+GET /rest/user/whoami
+
+Observed result:
+HTTP 200 with an empty user object.
+
+Assessment:
+The empty profile response requires further investigation.
+No authentication bypass was demonstrated.
+
+
+7. OTHER API TESTING
+
+PRODUCT REVIEWS:
+GET /rest/products/1/reviews
+GET /rest/products/2/reviews
+
+Both returned HTTP 200 with public review information.
+No unauthorized access or IDOR was established.
+
+PRODUCT INFORMATION:
+GET /api/Products
+
+Returned product information successfully.
+No confirmed sensitive information disclosure was identified
+in the inspected fields.
+
+CHALLENGE API:
+GET /api/Challenges
+
+Returned 118 challenge records across multiple security
+categories. Public challenge information alone was not
+classified as a vulnerability.
+
+UNAUTHENTICATED BASKET ACCESS:
+GET /rest/basket/1
+
+Returned HTTP 401 Unauthorized.
+This was expected protective behavior.
+
+
+8. HTTP SECURITY OBSERVATIONS
+
+The target returned the following headers during inspection:
+
+- X-Content-Type-Options: nosniff
+- X-Frame-Options: SAMEORIGIN
+- Access-Control-Allow-Origin: *
+
+A Content-Security-Policy header was not observed in the
+inspected response.
+
+HSTS was not observed. The local target was accessed over
+HTTP rather than HTTPS, so HSTS applicability was not
+established.
+
+The wildcard CORS configuration and missing CSP require
+contextual review. They are not independently confirmed
+vulnerabilities in this assessment.
+
+
+9. REMEDIATION PLAN
+
+PRIORITY 1:
+Fix the cross-account basket authorization weakness.
+
+PRIORITY 2:
+Investigate and correct unsafe product-search input handling
+and database error disclosure.
+
+PRIORITY 3:
+Review security-header configuration, including CSP and
+CORS policy.
+
+PRIORITY 4:
+Investigate the empty authenticated profile response.
+
+PRIORITY 5:
+Introduce automated authorization tests for customer-specific
+resources and regression testing for API endpoints.
+
+
+10. RETESTING PLAN
+
+After remediation, repeat the following tests:
+
+1. Account 1 accesses its own basket.
+   Expected: HTTP 200.
+
+2. Account 2 accesses its own basket.
+   Expected: HTTP 200.
+
+3. Account 1 requests Account 2's basket.
+   Expected: HTTP 403 or equivalent access denial.
+
+4. Unauthenticated user requests a basket.
+   Expected: HTTP 401.
+
+5. Product search receives special-character input.
+   Expected: Safe handling without exposing database errors.
+
+The application has not yet been patched and the remediation
+has not been independently retested.
+
+Do not mark FINDING-002 as resolved until the retest succeeds.
+
+
+11. CONCLUSION
+
+The assessment confirmed a cross-account basket access
+weakness in the local OWASP Juice Shop environment.
+
+The product-search endpoint also exposed a database error
+under certain input conditions, but SQL injection was not
+confirmed.
+
+Authentication testing was successful, and the unauthenticated
+basket request was rejected.
+
+The most important corrective action is to enforce server-side
+object-level authorization for all customer-specific resources.
+
+This report reflects the tests performed and evidence
+collected to date. Additional validation and remediation
+retesting are required before final sign-off.
+
+
+12. EVIDENCE REFERENCES
+
+evidence/api/authentication_test.txt
+evidence/api/authentication_profile_assessment.txt
+evidence/api/product_reviews_test.txt
+evidence/api/product_information_assessment.txt
+evidence/api/product_search_apple.json
+evidence/api/product_search_special_characters.txt
+evidence/api/product_search_single_quote.txt
+evidence/api/product_search_sql_like.txt
+evidence/api/basket_unauthenticated_test.txt
+evidence/api/basket_authenticated_test.txt
+evidence/api/cross_account_basket_evidence.txt
+
+evidence/findings/FINDING-001-SQL-Error-Disclosure.txt
+evidence/findings/FINDING-002-Cross-Account-Basket-Access.txt
+
+remediation/FINDING-002-IDOR-REMEDIATION.txt
+
+
+END OF REPORT
+
+Report status: Draft - Remediation retesting pending.

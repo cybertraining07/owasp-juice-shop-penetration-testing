@@ -1,0 +1,26 @@
+API TEST: PRODUCT REVIEWS
+
+Application: OWASP Juice Shop
+Target: http://127.0.0.1:3000
+
+Test 1:
+Endpoint: /rest/products/1/reviews
+Method: GET
+HTTP Status: 200 OK
+
+Test 2:
+Endpoint: /rest/products/2/reviews
+Method: GET
+HTTP Status: 200 OK
+
+Observation:
+The API returned one review associated with product 2.
+The response included a review message and author email address.
+
+Security Assessment:
+The API correctly returned product-specific review data.
+No unauthorized access or IDOR vulnerability was confirmed.
+
+Conclusion:
+Informational observation.
+Further authorization testing may be required.

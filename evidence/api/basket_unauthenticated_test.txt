@@ -1,0 +1,21 @@
+UNAUTHENTICATED BASKET ACCESS TEST
+
+Application: OWASP Juice Shop
+Target: http://127.0.0.1:3000
+Endpoint: GET /rest/basket/1
+
+Authentication: None supplied
+
+HTTP Response: 401 Unauthorized
+Content-Type: text/html; charset=utf-8
+
+Observation:
+The application rejected the unauthenticated request.
+
+Assessment:
+Authentication is required to access the basket endpoint.
+No unauthorized access was demonstrated.
+
+Conclusion:
+Unauthenticated access control behaved as expected.
+Further authenticated ownership testing is required.

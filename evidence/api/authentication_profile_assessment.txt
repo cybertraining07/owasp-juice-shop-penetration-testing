@@ -1,0 +1,41 @@
+AUTHENTICATION AND PROFILE TEST
+
+Application: OWASP Juice Shop
+Target: http://127.0.0.1:3000
+Test Account: Account1-TestUser
+
+RESULTS
+
+1. Login endpoint: POST /rest/user/login
+   Result: Successful authentication (HTTP 200).
+
+2. Authentication token:
+   Result: Token received.
+
+3. Authenticated email:
+   Result: Account1-TestUser
+
+4. Basket identifier:
+   Result: Present.
+
+5. Profile endpoint: GET /rest/user/whoami
+   Result: HTTP 200.
+   Response keys: user.
+   User object: Empty.
+
+SECURITY ASSESSMENT
+
+Authentication was successful. The profile endpoint returned
+an empty user object despite a valid login token.
+
+No authentication bypass, unauthorized account access, or
+authorization vulnerability has been confirmed.
+
+Further investigation is required to determine whether the
+empty profile response is expected application behavior.
+
+CONCLUSION
+
+Authentication test successful.
+Profile response requires further investigation.
+No confirmed vulnerability identified.

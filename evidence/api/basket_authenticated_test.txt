@@ -1,0 +1,26 @@
+AUTHENTICATED BASKET ACCESS TEST
+
+Application: OWASP Juice Shop
+Target: http://127.0.0.1:3000
+
+Test Account: Account1-TestUser
+Basket ID: 6
+
+Endpoint: GET /rest/basket/6
+Authentication: Valid JWT token
+
+HTTP Response: 200 OK
+Response Format: JSON
+Response Keys: status, data
+
+Observation:
+The authenticated customer successfully accessed their
+own basket using the basket identifier returned during login.
+
+Assessment:
+Expected authenticated access behavior was observed.
+No authorization vulnerability was demonstrated.
+
+Conclusion:
+Own-basket access successful.
+Cross-account ownership restrictions remain to be tested.

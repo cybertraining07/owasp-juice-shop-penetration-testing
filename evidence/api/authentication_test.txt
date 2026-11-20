@@ -1,0 +1,32 @@
+AUTHENTICATION TEST REPORT
+
+Application: OWASP Juice Shop
+Target: http://127.0.0.1:3000
+
+Endpoint:
+POST /rest/user/login
+
+Test Account:
+Account1-TestUser
+
+Test 1:
+Method: curl
+HTTP Status: 401 Unauthorized
+Result: Authentication rejected.
+
+Test 2:
+Method: Python urllib
+HTTP Status: 200 OK
+Result: Authentication successful.
+
+Observation:
+The Python request successfully authenticated
+the test account.
+
+Security Assessment:
+Authentication was successful using valid
+credentials. No authentication vulnerability
+was confirmed.
+
+Conclusion:
+Informational observation.

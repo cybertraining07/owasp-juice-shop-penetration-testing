@@ -1,0 +1,34 @@
+PRODUCT INFORMATION EXPOSURE ASSESSMENT
+
+Application: OWASP Juice Shop
+Target: http://127.0.0.1:3000
+Endpoint: GET /api/Products
+
+HTTP Status: 200 OK
+Total Products Returned: 46
+
+Fields Observed:
+- id
+- name
+- description
+- price
+- deluxePrice
+- image
+- alternateImages
+- createdAt
+- updatedAt
+- deletedAt
+
+Observations:
+- The API returned product catalogue information.
+- No passwords, authentication tokens, or customer records
+  were identified in the inspected product fields.
+- No products with a non-null deletedAt value were identified.
+
+Security Assessment:
+No confirmed sensitive information disclosure.
+No deleted products identified in the returned records.
+
+Conclusion:
+Informational observation.
+No confirmed vulnerability from this test.
