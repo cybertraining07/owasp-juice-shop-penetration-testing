@@ -112,3 +112,11 @@ GitHub: [@cybertraining07](https://github.com/cybertraining07)
 ## Disclaimer
 
 This project is intended for cybersecurity education and authorized security testing only.
+
+## 📄 Final Penetration Testing Report
+
+The complete OWASP Juice Shop penetration testing report is available below:
+
+[**View OWASP Juice Shop Penetration Test Report (PDF)**](reports/OWASP-Juice-Shop-Penetration-Test-Report.pdf)
+
+The report includes the assessment scope, methodology, security findings, supporting evidence, risk assessments, and remediation recommendations.
